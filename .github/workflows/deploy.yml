@@ -7,10 +7,12 @@ on:
 jobs:
   # ─────────────────────────────────────────────
   # Deploy Frontend to Vercel
+  # Requires secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
   # ─────────────────────────────────────────────
   deploy-frontend:
     name: Deploy Frontend (Vercel)
     runs-on: ubuntu-latest
+    if: ${{ vars.VERCEL_ENABLED == 'true' }}
     defaults:
       run:
         working-directory: frontend
@@ -40,11 +42,12 @@ jobs:
 
   # ─────────────────────────────────────────────
   # Trigger Render Backend Re-deploy
+  # Requires secrets: RENDER_DEPLOY_HOOK_URL
   # ─────────────────────────────────────────────
   deploy-backend:
     name: Deploy Backend (Render)
     runs-on: ubuntu-latest
-    needs: deploy-frontend
+    if: ${{ vars.RENDER_ENABLED == 'true' }}
 
     steps:
       - name: Trigger Render deploy hook
