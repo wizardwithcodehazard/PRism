@@ -75,8 +75,8 @@ async def github_callback(
         key="prism_session",
         value=session_token,
         httponly=True,
-        secure=False,      # set True in production (HTTPS)
-        samesite="lax",
+        secure=True,       # Required for cross-domain (HTTPS)
+        samesite="none",   # Required for Vercel -> Render cross-domain API calls
         max_age=60 * 60 * 24 * 7,  # 7 days
     )
     return redirect
