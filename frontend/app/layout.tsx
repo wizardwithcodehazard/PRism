@@ -1,19 +1,15 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Zen_Dots } from "next/font/google";
 import "./globals.css";
+import { LenisProvider } from "@/components/lenis-provider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const zenDots = Zen_Dots({ weight: "400", subsets: ["latin"], variable: "--font-zen-dots" });
 
 export const metadata: Metadata = {
   title: "PRism — AI Code Review for Engineering Teams",
   description:
     "PRism detects bugs, security vulnerabilities, performance bottlenecks, and code smells in your pull requests automatically using AI.",
-  keywords: ["code review", "AI", "pull request", "GitHub", "security", "DevOps"],
-  openGraph: {
-    title: "PRism — AI Code Review",
-    description: "Automated, intelligent PR reviews powered by AI.",
-    type: "website",
-  },
 };
 
 export default function RootLayout({
@@ -27,7 +23,9 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className={`${inter.variable} font-sans antialiased`}>{children}</body>
+      <body className={`${inter.variable} ${zenDots.variable} font-sans antialiased overflow-x-clip`}>
+        <LenisProvider>{children}</LenisProvider>
+      </body>
     </html>
   );
 }

@@ -131,6 +131,7 @@ async def trigger_review(
         "check_security": current_user.check_security,
         "check_performance": current_user.check_performance,
         "check_code_smells": current_user.check_code_smells,
+        "groq_api_key": current_user.groq_api_key,
     }
 
     background_tasks.add_task(

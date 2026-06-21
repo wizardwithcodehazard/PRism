@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { GitPullRequest, AlertCircle, CheckCircle2, TrendingUp, Eye, ArrowRight, Clock } from "lucide-react";
+import { GitPullRequest, AlertCircle, CheckCircle2, TrendingUp, Eye, ArrowRight, Clock, Key } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { listReviews, type ReviewSummary } from "@/lib/api";
+import { listReviews, getSettings, type ReviewSummary, type UserSettings } from "@/lib/api";
 
 function SeverityBadge({ review }: { review: ReviewSummary }) {
   if (review.status === "pending") {
@@ -21,12 +21,27 @@ function SeverityBadge({ review }: { review: ReviewSummary }) {
     return <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium badge-critical">Error</span>;
   }
   if (review.critical_count > 0) {
-    return <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium badge-critical">🔴 {review.critical_count} Critical</span>;
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium badge-critical">
+        <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
+        {review.critical_count} Critical
+      </span>
+    );
   }
   if (review.warning_count > 0) {
-    return <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium badge-warning">🟡 {review.warning_count} Warnings</span>;
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium badge-warning">
+        <div className="h-1.5 w-1.5 rounded-full bg-yellow-500" />
+        {review.warning_count} Warnings
+      </span>
+    );
   }
-  return <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium badge-clean">✅ Clean</span>;
+  return (
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium badge-clean">
+      <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
+      Clean
+    </span>
+  );
 }
 
 function timeAgo(dateStr: string): string {
@@ -40,11 +55,14 @@ function timeAgo(dateStr: string): string {
 
 export default function DashboardPage() {
   const [reviews, setReviews] = useState<ReviewSummary[]>([]);
+  const [settings, setSettings] = useState<UserSettings | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    listReviews()
-      .then(setReviews)
+    Promise.all([
+      listReviews().then(setReviews),
+      getSettings().then(setSettings)
+    ])
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
@@ -61,15 +79,39 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-1">Dashboard</h1>
         <p className="text-muted-foreground">Your AI code review overview</p>
       </div>
 
+      {/* Warning Banner */}
+      {!loading && settings && !settings.groq_api_key_set && (
+        <div className="mb-8">
+          <Card className="border-yellow-500/20 bg-yellow-500/5 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start sm:items-center gap-4">
+              <div className="h-10 w-10 rounded-xl bg-yellow-500/10 flex items-center justify-center text-yellow-500 shrink-0">
+                <Key className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">Groq API Key Required</p>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  Configure your personal Groq API key in settings to unlock AI code reviews.
+                </p>
+              </div>
+            </div>
+            <Link href="/dashboard/settings" className="w-full sm:w-auto">
+              <Button className="w-full sm:w-auto bg-yellow-600 hover:bg-yellow-700 text-white gap-2 shrink-0">
+                Configure Key <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </Card>
+        </div>
+      )}
+
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {stats.map((s) => (
           <Card key={s.label} className="p-5 glass border-border/50 hover:border-primary/30">
             <div className="flex items-start justify-between">
@@ -87,9 +129,9 @@ export default function DashboardPage() {
 
       {/* Quick Action */}
       <div className="mb-8">
-        <Card className="glass border-primary/20 p-5 flex items-center justify-between">
+        <Card className="glass border-primary/20 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
+            <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
               <GitPullRequest className="h-5 w-5 text-primary" />
             </div>
             <div>
@@ -97,8 +139,8 @@ export default function DashboardPage() {
               <p className="text-sm text-muted-foreground">Pick a repo and PR to get an AI review instantly</p>
             </div>
           </div>
-          <Link href="/dashboard/new-review">
-            <Button className="bg-primary hover:bg-primary/90 gap-2 glow-primary">
+          <Link href="/dashboard/new-review" className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90 gap-2 glow-primary">
               New Review <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
@@ -143,21 +185,23 @@ export default function DashboardPage() {
                         </h3>
                         <SeverityBadge review={review} />
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        <span className="font-mono text-primary/70">{review.repo}#{review.pr_number}</span>
-                        <span>·</span>
-                        <span>by {review.pr_author}</span>
-                        <span>·</span>
-                        <span className="flex items-center gap-1">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground min-w-0">
+                        <span className="font-mono text-primary/70 truncate max-w-[140px] min-[400px]:max-w-[180px] sm:max-w-none" title={`${review.repo}#${review.pr_number}`}>
+                          {review.repo}#{review.pr_number}
+                        </span>
+                        <span className="text-muted-foreground/50">·</span>
+                        <span className="truncate max-w-[100px] sm:max-w-none" title={`by ${review.pr_author}`}>by {review.pr_author}</span>
+                        <span className="text-muted-foreground/50">·</span>
+                        <span className="flex items-center gap-1 shrink-0">
                           <Clock className="h-3 w-3" />
                           {timeAgo(review.created_at)}
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground ml-4 shrink-0">
-                      <div className="text-right">
+                    <div className="flex items-center gap-4 ml-4">
+                      <div className="text-right hidden sm:block">
                         <p className="font-semibold text-foreground">{review.lines_added + review.lines_deleted}</p>
-                        <p>lines</p>
+                        <p className="text-xs text-muted-foreground">lines</p>
                       </div>
                       <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                     </div>

@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { GitPullRequest, Loader2, ArrowRight, Search, Lock } from "lucide-react";
+import { GitPullRequest, Loader2, ArrowRight, Search, Lock, Key } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { listRepos, listOpenPRs, triggerReview, type Repo, type PullRequest } from "@/lib/api";
+import { listRepos, listOpenPRs, triggerReview, getSettings, type Repo, type PullRequest, type UserSettings } from "@/lib/api";
 
 
 function timeAgo(dateStr: string): string {
@@ -28,8 +28,10 @@ export default function NewReviewPage() {
   const [loadingRepos, setLoadingRepos] = useState(true);
   const [loadingPRs, setLoadingPRs] = useState(false);
   const [triggering, setTriggering] = useState<number | null>(null);
+  const [settings, setSettings] = useState<UserSettings | null>(null);
 
   useEffect(() => {
+    getSettings().then(setSettings).catch(console.error);
     listRepos()
       .then((r) => {
         setRepos(r);
@@ -73,12 +75,35 @@ export default function NewReviewPage() {
 
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-4 sm:p-8 max-w-4xl">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-1">New Review</h1>
         <p className="text-muted-foreground">Select a repository and pull request to review</p>
       </div>
+
+      {/* Warning Banner */}
+      {settings && !settings.groq_api_key_set && (
+        <Card className="border-yellow-500/20 bg-yellow-500/5 p-5 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start sm:items-center gap-4">
+            <div className="h-10 w-10 rounded-xl bg-yellow-500/10 flex items-center justify-center text-yellow-500 shrink-0">
+              <Key className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="font-semibold text-foreground">Groq API Key Required</p>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Please set up your Groq API key in Settings before triggering code reviews.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => router.push("/dashboard/settings")}
+            className="w-full sm:w-auto px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2 shrink-0"
+          >
+            Configure Key <ArrowRight className="h-4 w-4" />
+          </button>
+        </Card>
+      )}
 
       {/* Step 1: Select Repo */}
       <div className="mb-8">
@@ -106,7 +131,7 @@ export default function NewReviewPage() {
               />
             </div>
 
-            <div className="grid gap-2 max-h-72 overflow-y-auto pr-1">
+            <div className="grid gap-2 max-h-72 overflow-y-auto pr-1" data-lenis-prevent>
               {filteredRepos.map((repo) => (
                 <button
                   key={repo.full_name}
@@ -173,7 +198,7 @@ export default function NewReviewPage() {
                   key={pr.number}
                   className="glass border-border/50 hover:border-primary/30 p-5"
                 >
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-xs font-mono text-primary/70">#{pr.number}</span>
@@ -190,8 +215,8 @@ export default function NewReviewPage() {
                     <Button
                       size="sm"
                       onClick={() => handleTrigger(pr)}
-                      disabled={triggering === pr.number}
-                      className="bg-primary hover:bg-primary/90 gap-2 shrink-0 glow-primary"
+                      disabled={triggering === pr.number || (settings !== null && !settings.groq_api_key_set)}
+                      className="w-full sm:w-auto bg-primary hover:bg-primary/90 gap-2 shrink-0 glow-primary"
                     >
                       {triggering === pr.number ? (
                         <>

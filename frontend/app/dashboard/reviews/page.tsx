@@ -18,9 +18,28 @@ function SeverityBadge({ review }: { review: ReviewSummary }) {
     );
   }
   if (review.status === "error") return <span className="px-2.5 py-0.5 rounded-full text-xs badge-critical">Error</span>;
-  if (review.critical_count > 0) return <span className="px-2.5 py-0.5 rounded-full text-xs badge-critical">🔴 {review.critical_count} Critical</span>;
-  if (review.warning_count > 0) return <span className="px-2.5 py-0.5 rounded-full text-xs badge-warning">🟡 {review.warning_count} Warnings</span>;
-  return <span className="px-2.5 py-0.5 rounded-full text-xs badge-clean">✅ Clean</span>;
+  if (review.critical_count > 0) {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium badge-critical">
+        <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
+        {review.critical_count} Critical
+      </span>
+    );
+  }
+  if (review.warning_count > 0) {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium badge-warning">
+        <div className="h-1.5 w-1.5 rounded-full bg-yellow-500" />
+        {review.warning_count} Warnings
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium badge-clean">
+      <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
+      Clean
+    </span>
+  );
 }
 
 function timeAgo(dateStr: string): string {
@@ -62,14 +81,14 @@ export default function ReviewsPage() {
   };
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 sm:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-foreground mb-1">Review History</h1>
           <p className="text-muted-foreground">All your AI code reviews</p>
         </div>
-        <Link href="/dashboard/new-review">
-          <Button className="bg-primary hover:bg-primary/90 gap-2 glow-primary">
+        <Link href="/dashboard/new-review" className="w-full sm:w-auto">
+          <Button className="w-full sm:w-auto bg-primary hover:bg-primary/90 gap-2 glow-primary">
             <GitPullRequest className="h-4 w-4" />
             New Review
           </Button>
@@ -117,12 +136,14 @@ export default function ReviewsPage() {
                       </h3>
                       <SeverityBadge review={review} />
                     </div>
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                      <span className="font-mono text-primary/70">{review.repo}#{review.pr_number}</span>
-                      <span>·</span>
-                      <span>by {review.pr_author}</span>
-                      <span>·</span>
-                      <span className="flex items-center gap-1">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground min-w-0">
+                      <span className="font-mono text-primary/70 truncate max-w-[140px] min-[400px]:max-w-[180px] sm:max-w-none" title={`${review.repo}#${review.pr_number}`}>
+                        {review.repo}#{review.pr_number}
+                      </span>
+                      <span className="text-muted-foreground/50">·</span>
+                      <span className="truncate max-w-[100px] sm:max-w-none" title={`by ${review.pr_author}`}>by {review.pr_author}</span>
+                      <span className="text-muted-foreground/50">·</span>
+                      <span className="flex items-center gap-1 shrink-0">
                         <Clock className="h-3 w-3" />
                         {timeAgo(review.created_at)}
                       </span>

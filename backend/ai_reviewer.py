@@ -91,7 +91,15 @@ async def review_diff(
     """
     prompt = _build_user_prompt(diff, languages, user_settings)
 
-    response = await client.chat.completions.create(
+    user_key = user_settings.get("groq_api_key")
+    if user_key:
+        groq_client = AsyncGroq(api_key=user_key)
+    else:
+        if not settings.GROQ_API_KEY:
+            raise ValueError("No Groq API Key provided. Please set your Groq API Key in Settings.")
+        groq_client = client
+
+    response = await groq_client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},

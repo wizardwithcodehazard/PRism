@@ -17,6 +17,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 class UpdateSettingsRequest(BaseModel):
     discord_webhook_url: Optional[str] = None
+    groq_api_key: Optional[str] = None
     auto_post_comments: Optional[bool] = None
     check_security: Optional[bool] = None
     check_performance: Optional[bool] = None
@@ -29,6 +30,7 @@ class UpdateSettingsRequest(BaseModel):
 async def get_settings(current_user: User = Depends(get_current_user)):
     return {
         "discord_webhook_url": current_user.discord_webhook_url,
+        "groq_api_key_set": bool(current_user.groq_api_key),
         "auto_post_comments": current_user.auto_post_comments,
         "check_security": current_user.check_security,
         "check_performance": current_user.check_performance,
@@ -44,7 +46,10 @@ async def update_settings(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    for field, value in body.model_dump(exclude_none=True).items():
-        setattr(current_user, field, value)
+    for field, value in body.model_dump(exclude_unset=True).items():
+        if field == "groq_api_key" and (value == "" or value is None):
+            current_user.groq_api_key = None
+        else:
+            setattr(current_user, field, value)
     await db.commit()
     return {"ok": True}

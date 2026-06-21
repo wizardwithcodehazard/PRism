@@ -3,152 +3,119 @@
 
 @custom-variant dark (&:is(.dark *));
 
-:root {
-  /* PRism dark-first color system */
-  --background: oklch(0.10 0 0);
-  --foreground: oklch(0.97 0 0);
-  --card: oklch(0.14 0 0);
-  --card-foreground: oklch(0.97 0 0);
-  --popover: oklch(0.14 0 0);
-  --popover-foreground: oklch(0.97 0 0);
+/* Hide scrollbar for all browsers */
+::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  background: transparent !important;
+}
 
-  /* Vibrant violet-indigo primary */
-  --primary: oklch(0.68 0.22 285);
+html, body {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+:root {
+  --background: oklch(0.08 0.02 280); /* Deep dark indigo/purple */
+  --foreground: oklch(0.98 0 0);
+  --card: oklch(0.12 0.05 280);
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.12 0.05 280);
+  --popover-foreground: oklch(0.98 0 0);
+
+  /* Deep rich violet */
+  --primary: oklch(0.65 0.25 290);
   --primary-foreground: oklch(0.98 0 0);
 
-  --secondary: oklch(0.20 0 0);
-  --secondary-foreground: oklch(0.97 0 0);
-  --muted: oklch(0.18 0 0);
-  --muted-foreground: oklch(0.60 0 0);
-  --accent: oklch(0.22 0.04 285);
-  --accent-foreground: oklch(0.97 0 0);
-  --destructive: oklch(0.58 0.22 27);
-  --destructive-foreground: oklch(0.97 0 0);
-  --border: oklch(0.22 0 0);
-  --input: oklch(0.22 0 0);
-  --ring: oklch(0.68 0.22 285);
-  --radius: 0.75rem;
-
-  /* Severity colors */
-  --critical: oklch(0.58 0.22 27);
-  --warning: oklch(0.75 0.18 70);
-  --info: oklch(0.62 0.18 240);
-  --success: oklch(0.68 0.18 150);
+  /* Vivid purple/magenta */
+  --secondary: oklch(0.55 0.28 310);
+  --secondary-foreground: oklch(0.98 0 0);
+  --muted: oklch(0.18 0.05 280);
+  --muted-foreground: oklch(0.7 0.05 280);
+  --border: oklch(0.25 0.08 280);
+  --input: oklch(0.2 0.05 280);
+  --ring: oklch(0.65 0.25 290);
+  
+  --radius: 1.5rem;
 }
 
 @theme inline {
-  --font-sans: "Inter", "Inter Fallback";
+  --font-sans: "Inter", sans-serif;
+  --font-zen: var(--font-zen-dots), "Inter", sans-serif;
+  
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
-  --color-input: var(--input);
   --color-ring: var(--ring);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 8px);
+  --radius-md: calc(var(--radius) - 4px);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
+  * { @apply border-border outline-ring/50; }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground antialiased selection:bg-primary/30;
     font-family: "Inter", sans-serif;
   }
 }
 
-/* ── Glassmorphism utility ── */
-.glass {
-  background: rgba(255, 255, 255, 0.04);
+.glow-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glow-orb-1 {
+  position: absolute;
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, oklch(0.65 0.25 290 / 0.25) 0%, transparent 75%);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate3d(0,0,0);
+  will-change: transform;
+}
+
+.glow-orb-2 {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, oklch(0.55 0.28 310 / 0.2) 0%, transparent 75%);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate3d(0,0,0);
+  will-change: transform;
+}
+
+.glass, .glass-card {
+  background: linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.01) 100%);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.4), inset 0 1px 0 0 rgba(255,255,255,0.1);
+  transform: translate3d(0,0,0);
 }
 
-/* ── Animated gradient mesh background ── */
-.hero-mesh {
-  background:
-    radial-gradient(ellipse 80% 60% at 20% 40%, oklch(0.68 0.22 285 / 0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 20%, oklch(0.62 0.18 240 / 0.10) 0%, transparent 60%),
-    radial-gradient(ellipse 70% 60% at 60% 80%, oklch(0.58 0.22 27 / 0.06) 0%, transparent 60%),
-    oklch(0.10 0 0);
+.glass-button {
+  background: linear-gradient(145deg, oklch(0.65 0.25 290 / 0.8) 0%, oklch(0.55 0.28 310 / 0.8) 100%);
+  box-shadow: 0 4px 15px 0 oklch(0.65 0.25 290 / 0.4), inset 0 1px 0 0 rgba(255,255,255,0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transform: translate3d(0,0,0);
 }
 
-/* ── Glow utilities ── */
-.glow-primary {
-  box-shadow: 0 0 24px oklch(0.68 0.22 285 / 0.35);
-}
-.glow-critical {
-  box-shadow: 0 0 12px oklch(0.58 0.22 27 / 0.4);
-}
-
-/* ── Severity badges ── */
-.badge-critical {
-  background: oklch(0.58 0.22 27 / 0.15);
-  color: oklch(0.78 0.14 27);
-  border: 1px solid oklch(0.58 0.22 27 / 0.35);
-}
-.badge-warning {
-  background: oklch(0.75 0.18 70 / 0.15);
-  color: oklch(0.85 0.12 70);
-  border: 1px solid oklch(0.75 0.18 70 / 0.35);
-}
-.badge-info {
-  background: oklch(0.62 0.18 240 / 0.15);
-  color: oklch(0.78 0.12 240);
-  border: 1px solid oklch(0.62 0.18 240 / 0.35);
-}
-.badge-clean {
-  background: oklch(0.68 0.18 150 / 0.15);
-  color: oklch(0.78 0.12 150);
-  border: 1px solid oklch(0.68 0.18 150 / 0.35);
-}
-
-/* ── Smooth transitions ── */
-* {
-  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
-  transition-duration: 150ms;
-  transition-timing-function: ease;
-}
-
-/* ── Scrollbar ── */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: oklch(0.14 0 0);
-}
-::-webkit-scrollbar-thumb {
-  background: oklch(0.28 0 0);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.68 0.22 285 / 0.6);
-}
-
-/* ── Code block ── */
-.code-block {
-  background: oklch(0.08 0 0);
-  border: 1px solid oklch(0.22 0 0);
-  border-radius: 0.5rem;
-  font-family: "JetBrains Mono", "Fira Code", monospace;
-  font-size: 0.8rem;
-  line-height: 1.6;
-  overflow-x: auto;
-  padding: 1rem;
+.glass-button:hover {
+  transform: translate3d(0,-2px,0);
+  box-shadow: 0 8px 25px 0 oklch(0.65 0.25 290 / 0.6), inset 0 1px 0 0 rgba(255,255,255,0.4);
 }

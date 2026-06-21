@@ -18,6 +18,7 @@ class User(Base):
 
     # Settings
     discord_webhook_url = Column(String, nullable=True)
+    groq_api_key = Column(String, nullable=True)
     auto_post_comments = Column(Boolean, default=True)
     check_security = Column(Boolean, default=True)
     check_performance = Column(Boolean, default=True)

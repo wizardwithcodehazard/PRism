@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Save, Loader2, MessageSquare, Shield, Zap, Code2, Bell, Webhook } from "lucide-react";
+import { Save, Loader2, MessageSquare, Shield, Zap, Code2, Bell, Webhook, Check, Key } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,7 +50,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="p-8 max-w-2xl">
+    <div className="p-4 sm:p-8 max-w-2xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-1">Settings</h1>
         <p className="text-muted-foreground">Customize how PRism reviews your code</p>
@@ -150,6 +150,38 @@ export default function SettingsPage() {
         </div>
       </Card>
 
+      {/* Groq API Key */}
+      <Card className="glass border-border/50 p-6 mb-6">
+        <h2 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
+          <Key className="h-5 w-5 text-primary" />
+          Groq API Key
+          <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-muted/50 text-muted-foreground">Required</span>
+        </h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          Provide your own Groq API Key to power the review agent. Your key is stored securely in the database and is never returned in plaintext.
+        </p>
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs font-medium text-muted-foreground block mb-1.5">
+              Groq API Key
+            </label>
+            <Input
+              type="password"
+              placeholder={settings.groq_api_key_set ? "••••••••••••••••••••••••••••••••" : "gsk_..."}
+              value={settings.groq_api_key ?? ""}
+              onChange={(e) => update("groq_api_key", e.target.value)}
+              className="bg-muted/30 border-border/50 font-mono text-sm"
+            />
+            {settings.groq_api_key_set && (
+              <p className="text-xs text-green-400 mt-1.5 flex items-center gap-1">
+                <Check className="h-3.5 w-3.5" />
+                Active API key is configured. Enter a new key to overwrite it.
+              </p>
+            )}
+          </div>
+        </div>
+      </Card>
+
       {/* Discord ChatOps */}
       <Card className="glass border-border/50 p-6 mb-8">
         <h2 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
@@ -180,11 +212,11 @@ export default function SettingsPage() {
       </Card>
 
       {/* Save */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <Button
           onClick={handleSave}
           disabled={saving}
-          className="bg-primary hover:bg-primary/90 gap-2 glow-primary"
+          className="w-full sm:w-auto bg-primary hover:bg-primary/90 gap-2 glow-primary"
         >
           {saving ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -194,8 +226,8 @@ export default function SettingsPage() {
           {saving ? "Saving..." : "Save Settings"}
         </Button>
         {saved && (
-          <span className="text-sm text-green-400 flex items-center gap-1.5">
-            ✅ Settings saved!
+          <span className="text-sm text-green-400 flex items-center justify-center gap-1.5 animate-fade-in">
+            <Check className="h-4 w-4" /> Settings saved!
           </span>
         )}
       </div>

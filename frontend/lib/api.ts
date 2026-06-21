@@ -132,6 +132,8 @@ export interface ReviewDetail extends ReviewSummary {
 
 export interface UserSettings {
   discord_webhook_url: string | null;
+  groq_api_key?: string | null;
+  groq_api_key_set?: boolean;
   auto_post_comments: boolean;
   check_security: boolean;
   check_performance: boolean;

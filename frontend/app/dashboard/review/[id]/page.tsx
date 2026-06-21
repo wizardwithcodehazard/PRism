@@ -15,6 +15,8 @@ import {
   Palette,
   AlertCircle,
   RefreshCw,
+  FileCode,
+  Lightbulb,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -60,7 +62,7 @@ function CommentCard({ comment }: { comment: ReviewComment }) {
           <Icon className="h-4 w-4 text-muted-foreground" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-3 mb-2">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2">
             <h4 className="font-semibold text-foreground text-sm leading-tight">{comment.message}</h4>
             <div className="flex items-center gap-1.5 shrink-0">
               <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${severityClass}`}>
@@ -73,9 +75,9 @@ function CommentCard({ comment }: { comment: ReviewComment }) {
           </div>
 
           {comment.file && (
-            <p className="text-xs font-mono text-primary/70 mb-2">
-              📄 {comment.file}
-              {comment.line && `:${comment.line}`}
+            <p className="text-xs font-mono text-primary/70 mb-2 flex items-center gap-1.5">
+              <FileCode className="h-3.5 w-3.5" />
+              <span>{comment.file}{comment.line && `:${comment.line}`}</span>
             </p>
           )}
 
@@ -83,7 +85,10 @@ function CommentCard({ comment }: { comment: ReviewComment }) {
 
           {comment.suggestion && (
             <div className="p-3 rounded-lg bg-green-500/5 border border-green-500/20">
-              <p className="text-xs font-medium text-green-400 mb-1">💡 Suggestion</p>
+              <p className="text-xs font-medium text-green-400 mb-1 flex items-center gap-1.5">
+                <Lightbulb className="h-3.5 w-3.5" />
+                <span>Suggestion</span>
+              </p>
               <p className="text-xs text-muted-foreground leading-relaxed">{comment.suggestion}</p>
             </div>
           )}
@@ -195,7 +200,7 @@ export default function ReviewDetailPage() {
   const isPending = review.status === "pending";
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       {/* Back */}
       <Link href="/dashboard/reviews" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
         <ArrowLeft className="h-4 w-4" />
@@ -204,7 +209,7 @@ export default function ReviewDetailPage() {
 
       {/* PR Header */}
       <div className="mb-8">
-        <div className="flex items-start justify-between gap-4 mb-3">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-sm font-mono text-primary/70">{review.repo}#{review.pr_number}</span>
@@ -216,7 +221,7 @@ export default function ReviewDetailPage() {
               )}
             </div>
             <h1 className="text-2xl font-bold text-foreground">{review.pr_title}</h1>
-            <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-sm text-muted-foreground mt-1">
               <span>by <strong>{review.pr_author}</strong></span>
               <span>·</span>
               <span className="font-mono">{review.head_branch} → {review.base_branch}</span>
@@ -225,9 +230,9 @@ export default function ReviewDetailPage() {
               <span className="text-red-400">-{review.lines_deleted}</span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <a href={review.pr_url} target="_blank" rel="noopener noreferrer">
-              <Button variant="outline" size="sm" className="gap-2 border-border/50">
+          <div className="flex items-center gap-2 w-full md:w-auto md:justify-end">
+            <a href={review.pr_url} target="_blank" rel="noopener noreferrer" className="flex-1 sm:flex-initial">
+              <Button variant="outline" size="sm" className="w-full gap-2 border-border/50">
                 <ExternalLink className="h-3.5 w-3.5" />
                 View on GitHub
               </Button>
@@ -260,7 +265,7 @@ export default function ReviewDetailPage() {
       ) : (
         <>
           {/* Summary cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <Card className="glass border-border/50 p-5 flex items-center gap-4">
               <ScoreRing score={0} /> {/* Score not in summary type, defaulting */}
               <div>
@@ -305,16 +310,19 @@ export default function ReviewDetailPage() {
                   <button
                     key={f}
                     onClick={() => setActiveFilter(f)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5 ${
                       activeFilter === f
                         ? "bg-primary/20 text-primary border border-primary/30"
                         : "text-muted-foreground hover:text-foreground border border-border/50 hover:border-border"
                     }`}
                   >
+                    {f === "critical" && <div className="h-1.5 w-1.5 rounded-full bg-red-500" />}
+                    {f === "warning" && <div className="h-1.5 w-1.5 rounded-full bg-yellow-500" />}
+                    {f === "info" && <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />}
                     {f === "all" ? `All (${review.issues_count})` : 
-                     f === "critical" ? `🔴 Critical (${review.critical_count})` :
-                     f === "warning" ? `🟡 Warnings (${review.warning_count})` :
-                     `🔵 Info (${review.info_count})`}
+                     f === "critical" ? `Critical (${review.critical_count})` :
+                     f === "warning" ? `Warnings (${review.warning_count})` :
+                     `Info (${review.info_count})`}
                   </button>
                 ))}
               </div>
